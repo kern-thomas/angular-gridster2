@@ -59,6 +59,7 @@ var GridsterUtils = /** @class */ (function () {
             || GridsterUtils.checkContentClass(e.target, e.currentTarget, gridster.$options.draggable.dragHandleClass);
     };
     GridsterUtils.checkContentClass = function (target, current, contentClass) {
+        if(!target){ return true; }
         if (target === current) {
             return false;
         }
