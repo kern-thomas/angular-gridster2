@@ -29,7 +29,7 @@ var GridsterSwap = /** @class */ (function () {
                 this.swapedItem.$item.y = y;
             }
             else {
-                this.swapedItem.setSize();
+                this.swapedItem.setSize(true);
                 this.gridsterItem.$item.x = this.gridsterItem.item.x || 0;
                 this.gridsterItem.$item.y = this.gridsterItem.item.y || 0;
                 this.swapedItem = undefined;
@@ -40,7 +40,7 @@ var GridsterSwap = /** @class */ (function () {
         if (this.swapedItem) {
             this.swapedItem.$item.x = this.swapedItem.item.x || 0;
             this.swapedItem.$item.y = this.swapedItem.item.y || 0;
-            this.swapedItem.setSize();
+            this.swapedItem.setSize(true);
             this.swapedItem = undefined;
         }
     };
@@ -69,7 +69,7 @@ var GridsterSwap = /** @class */ (function () {
                 gridsterItemCollide.$item.y = copyCollisionY;
             }
             else {
-                gridsterItemCollide.setSize();
+                gridsterItemCollide.setSize(true);
                 this.swapedItem = gridsterItemCollide;
             }
         }

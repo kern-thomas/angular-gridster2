@@ -42,7 +42,7 @@ var GridsterPushResize = /** @class */ (function () {
             pushedItem.$item.y = pushedItem.item.y || 0;
             pushedItem.$item.cols = pushedItem.item.cols || 1;
             pushedItem.$item.row = pushedItem.item.row || 1;
-            pushedItem.setSize();
+            pushedItem.setSize(true);
         }
         this.pushedItems = [];
         this.pushedItemsPath = [];
@@ -90,7 +90,7 @@ var GridsterPushResize = /** @class */ (function () {
         gridsterItemCollide.$item.rows = backUpRows + backUpY - gridsterItemCollide.$item.y;
         if (!gridster_component_1.GridsterComponent.checkCollisionTwoItems(gridsterItemCollide.$item, gridsterItem.$item)
             && !this.gridster.checkGridCollision(gridsterItemCollide.$item)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             this.push(gridsterItem, direction);
             return true;
@@ -106,7 +106,7 @@ var GridsterPushResize = /** @class */ (function () {
         gridsterItemCollide.$item.rows = gridsterItem.$item.y - gridsterItemCollide.$item.y;
         if (!gridster_component_1.GridsterComponent.checkCollisionTwoItems(gridsterItemCollide.$item, gridsterItem.$item)
             && !this.gridster.checkGridCollision(gridsterItemCollide.$item)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             this.push(gridsterItem, direction);
             return true;
@@ -123,7 +123,7 @@ var GridsterPushResize = /** @class */ (function () {
         gridsterItemCollide.$item.cols = backUpCols + backUpX - gridsterItemCollide.$item.x;
         if (!gridster_component_1.GridsterComponent.checkCollisionTwoItems(gridsterItemCollide.$item, gridsterItem.$item)
             && !this.gridster.checkGridCollision(gridsterItemCollide.$item)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             this.push(gridsterItem, direction);
             return true;
@@ -139,7 +139,7 @@ var GridsterPushResize = /** @class */ (function () {
         gridsterItemCollide.$item.cols = gridsterItem.$item.x - gridsterItemCollide.$item.x;
         if (!gridster_component_1.GridsterComponent.checkCollisionTwoItems(gridsterItemCollide.$item, gridsterItem.$item)
             && !this.gridster.checkGridCollision(gridsterItemCollide.$item)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             this.push(gridsterItem, direction);
             return true;
@@ -198,7 +198,7 @@ var GridsterPushResize = /** @class */ (function () {
             pushedItem.$item.cols = lastPosition.cols;
             pushedItem.$item.rows = lastPosition.rows;
             if (!this.gridster.findItemWithItem(pushedItem.$item)) {
-                pushedItem.setSize();
+                pushedItem.setSize(true);
                 path.splice(j + 1, path.length - 1 - j);
             }
             else {

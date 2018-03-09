@@ -6,7 +6,7 @@ var GridsterUtils = /** @class */ (function () {
     }
     GridsterUtils.merge = function (obj1, obj2, properties) {
         for (var p in obj2) {
-            if (obj2[p] !== void 0 && properties.hasOwnProperty(p)) {
+            if (obj2.hasOwnProperty(p) && properties.hasOwnProperty(p)) {
                 if (typeof obj2[p] === 'object') {
                     obj1[p] = GridsterUtils.merge(obj1[p], obj2[p], properties[p]);
                 }
@@ -59,9 +59,6 @@ var GridsterUtils = /** @class */ (function () {
             || GridsterUtils.checkContentClass(e.target, e.currentTarget, gridster.$options.draggable.dragHandleClass);
     };
     GridsterUtils.checkContentClass = function (target, current, contentClass) {
-        if (!target) {
-            return true;
-        }
         if (target === current) {
             return false;
         }
@@ -72,14 +69,14 @@ var GridsterUtils = /** @class */ (function () {
             return GridsterUtils.checkContentClass(target.parentNode, current, contentClass);
         }
     };
-    GridsterUtils.compareItems = function (a, b) {
-        if (a.y > b.y) {
+    GridsterUtils.compareItems = function (item1, item2) {
+        if (item1.y > item2.y) {
             return -1;
         }
-        else if (a.y < b.y) {
+        else if (item1.y < item2.y) {
             return 1;
         }
-        else if (a.x > b.x) {
+        else if (item1.x > item2.x) {
             return -1;
         }
         else {

@@ -55,7 +55,7 @@ var GridsterPush = /** @class */ (function () {
             pushedItem = this.pushedItems[i];
             pushedItem.$item.x = pushedItem.item.x || 0;
             pushedItem.$item.y = pushedItem.item.y || 0;
-            pushedItem.setSize();
+            pushedItem.setSize(true);
         }
         this.pushedItems = [];
         this.pushedItemsPath = [];
@@ -153,7 +153,7 @@ var GridsterPush = /** @class */ (function () {
         this.addToTempPushed(gridsterItemCollide);
         gridsterItemCollide.$item.y = gridsterItem.$item.y + gridsterItem.$item.rows;
         if (this.push(gridsterItemCollide, this.fromNorth)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             return true;
         }
@@ -169,7 +169,7 @@ var GridsterPush = /** @class */ (function () {
         this.addToTempPushed(gridsterItemCollide);
         gridsterItemCollide.$item.y = gridsterItem.$item.y - gridsterItemCollide.$item.rows;
         if (this.push(gridsterItemCollide, this.fromSouth)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             return true;
         }
@@ -185,7 +185,7 @@ var GridsterPush = /** @class */ (function () {
         this.addToTempPushed(gridsterItemCollide);
         gridsterItemCollide.$item.x = gridsterItem.$item.x + gridsterItem.$item.cols;
         if (this.push(gridsterItemCollide, this.fromWest)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             return true;
         }
@@ -201,7 +201,7 @@ var GridsterPush = /** @class */ (function () {
         this.addToTempPushed(gridsterItemCollide);
         gridsterItemCollide.$item.x = gridsterItem.$item.x - gridsterItemCollide.$item.cols;
         if (this.push(gridsterItemCollide, this.fromEast)) {
-            gridsterItemCollide.setSize();
+            gridsterItemCollide.setSize(true);
             this.addToPushed(gridsterItemCollide);
             return true;
         }
@@ -226,7 +226,7 @@ var GridsterPush = /** @class */ (function () {
         }
         gridsterItem.$item.x = tempPosition.x;
         gridsterItem.$item.y = tempPosition.y;
-        gridsterItem.setSize();
+        gridsterItem.setSize(true);
         if (!this.pushedItemsTempPath[i].length) {
             this.pushedItemsTemp.splice(i, 1);
             this.pushedItemsTempPath.splice(i, 1);
@@ -271,7 +271,7 @@ var GridsterPush = /** @class */ (function () {
             pushedItem.$item.x = lastPosition.x;
             pushedItem.$item.y = lastPosition.y;
             if (!this.gridster.findItemWithItem(pushedItem.$item)) {
-                pushedItem.setSize();
+                pushedItem.setSize(true);
                 path.splice(j + 1, path.length - j - 1);
                 change = true;
             }

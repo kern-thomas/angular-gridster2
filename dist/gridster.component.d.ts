@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, ElementRef, NgZone, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, ElementRef, OnChanges, OnDestroy, OnInit, Renderer2, SimpleChanges } from '@angular/core';
 import { GridsterConfig } from './gridsterConfig.interface';
+import { GridsterGridComponent } from './gridsterGrid.component';
 import { GridsterEmptyCell } from './gridsterEmptyCell.service';
 import { GridsterCompact } from './gridsterCompact.service';
 import { GridsterConfigS } from './gridsterConfigS.interface';
@@ -9,7 +10,6 @@ import { GridsterItemComponentInterface } from './gridsterItemComponent.interfac
 export declare class GridsterComponent implements OnInit, OnChanges, OnDestroy, GridsterComponentInterface {
     renderer: Renderer2;
     cdRef: ChangeDetectorRef;
-    zone: NgZone;
     options: GridsterConfig;
     calculateLayoutDebounce: () => void;
     movingItem: GridsterItemS | null;
@@ -24,13 +24,12 @@ export declare class GridsterComponent implements OnInit, OnChanges, OnDestroy, 
     rows: number;
     curColWidth: number;
     curRowHeight: number;
-    gridColumns: never[];
-    gridRows: never[];
     windowResize: (() => void) | null;
+    gridLines: GridsterGridComponent;
     dragInProgress: boolean;
     emptyCell: GridsterEmptyCell;
     compact: GridsterCompact;
-    constructor(el: ElementRef, renderer: Renderer2, cdRef: ChangeDetectorRef, zone: NgZone);
+    constructor(el: ElementRef, renderer: Renderer2, cdRef: ChangeDetectorRef);
     static checkCollisionTwoItems(item: GridsterItemS, item2: GridsterItemS): boolean;
     ngOnInit(): void;
     ngOnChanges(changes: SimpleChanges): void;
@@ -43,7 +42,6 @@ export declare class GridsterComponent implements OnInit, OnChanges, OnDestroy, 
     setGridSize(): void;
     setGridDimensions(): void;
     calculateLayout(): void;
-    updateGrid(): void;
     addItem(itemComponent: GridsterItemComponentInterface): void;
     removeItem(itemComponent: GridsterItemComponentInterface): void;
     checkCollision(item: GridsterItemS): GridsterItemComponentInterface | boolean;
@@ -52,8 +50,8 @@ export declare class GridsterComponent implements OnInit, OnChanges, OnDestroy, 
     findItemsWithItem(item: GridsterItemS): Array<GridsterItemComponentInterface>;
     autoPositionItem(itemComponent: GridsterItemComponentInterface): void;
     getNextPossiblePosition(newItem: GridsterItemS, startingFrom?: {
-        y?: number;
-        x?: number;
+        rows?: number;
+        cols?: number;
     }): boolean;
     getFirstPossiblePosition(item: GridsterItemS): GridsterItemS;
     getLastPossiblePosition(item: GridsterItemS): GridsterItemS;

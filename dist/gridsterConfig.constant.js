@@ -96,6 +96,8 @@ exports.GridsterConfigService = {
     // limit empty cell drag max cols
     emptyCellDragMaxRows: 50,
     // limit empty cell drag max rows
+    ignoreMarginInRow: false,
+    // ignore the gap between rows for items which span multiple rows (see #162, #224)
     // Arguments: event, gridsterItem{x, y, rows: defaultItemRows, cols: defaultItemCols}
     draggable: {
         delayStart: 0,

@@ -16,24 +16,57 @@ var GridsterPreviewComponent = /** @class */ (function () {
     };
     GridsterPreviewComponent.prototype.previewStyle = function (drag) {
         if (!this.gridster.movingItem) {
-            this.renderer.setStyle(this.el, 'display', null);
+            this.renderer.setStyle(this.el, 'display', 'none');
         }
         else {
             if (this.gridster.compact && drag) {
                 this.gridster.compact.checkCompactItem(this.gridster.movingItem);
             }
+            var margin = void 0;
+            var curRowHeight = this.gridster.curRowHeight;
+            var curColWidth = this.gridster.curColWidth;
+            if (this.gridster.$options.outerMargin) {
+                if (this.gridster.$options.outerMarginTop !== null) {
+                    margin = this.gridster.$options.outerMarginTop + 'px ';
+                }
+                else {
+                    margin = this.gridster.$options.margin + 'px ';
+                }
+                if (this.gridster.$options.outerMarginRight !== null) {
+                    margin += this.gridster.$options.outerMarginRight + 'px ';
+                }
+                else {
+                    margin += this.gridster.$options.margin + 'px ';
+                }
+                if (this.gridster.$options.outerMarginBottom !== null) {
+                    margin += this.gridster.$options.outerMarginBottom + 'px ';
+                }
+                else {
+                    margin += this.gridster.$options.margin + 'px ';
+                }
+                if (this.gridster.$options.outerMarginLeft !== null) {
+                    margin += this.gridster.$options.outerMarginLeft + 'px';
+                }
+                else {
+                    margin += this.gridster.$options.margin + 'px';
+                }
+            }
+            else {
+                margin = 0 + 'px';
+            }
             this.renderer.setStyle(this.el, 'display', 'block');
-            this.renderer.setStyle(this.el, 'grid-column-start', (this.gridster.movingItem.x + 1));
-            this.renderer.setStyle(this.el, 'grid-column-end', ((this.gridster.movingItem.x + 1) + this.gridster.movingItem.cols));
-            this.renderer.setStyle(this.el, 'grid-row-start', (this.gridster.movingItem.y + 1));
-            this.renderer.setStyle(this.el, 'grid-row-end', ((this.gridster.movingItem.y + 1) + this.gridster.movingItem.rows));
+            this.renderer.setStyle(this.el, 'height', (this.gridster.movingItem.rows * curRowHeight - this.gridster.$options.margin) + 'px');
+            this.renderer.setStyle(this.el, 'width', (this.gridster.movingItem.cols * curColWidth - this.gridster.$options.margin) + 'px');
+            this.renderer.setStyle(this.el, 'top', (this.gridster.movingItem.y * curRowHeight) + 'px');
+            this.renderer.setStyle(this.el, 'left', (this.gridster.movingItem.x * curColWidth) + 'px');
+            this.renderer.setStyle(this.el, 'margin', margin);
         }
     };
     GridsterPreviewComponent.decorators = [
         { type: core_1.Component, args: [{
                     selector: 'gridster-preview',
                     template: '',
-                    styles: ["gridster-preview {   display: none;   background: rgba(0, 0, 0, 0.15); }"],
+                    styles: ["gridster-preview {   background: rgba(0, 0, 0, 0.15);   position: absolute; }"],
                     encapsulation: core_1.ViewEncapsulation.None
                 },] },
     ];

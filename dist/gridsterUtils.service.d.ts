@@ -6,10 +6,10 @@ export declare class GridsterUtils {
     static checkContentClassForEvent(gridster: GridsterComponentInterface, e: any): boolean;
     static checkContentClassForEmptyCellClickEvent(gridster: GridsterComponentInterface, e: any): boolean;
     static checkContentClass(target: any, current: any, contentClass: string): boolean;
-    static compareItems(a: {
+    static compareItems(item1: {
         x: number;
         y: number;
-    }, b: {
+    }, item2: {
         x: number;
         y: number;
     }): number;

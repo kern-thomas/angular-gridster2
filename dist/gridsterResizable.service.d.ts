@@ -1,10 +1,9 @@
-import { NgZone } from '@angular/core';
+import { GridsterResizeEventType } from './gridsterResizeEventType.interface';
 import { GridsterPush } from './gridsterPush.service';
 import { GridsterPushResize } from './gridsterPushResize.service';
 import { GridsterItemComponentInterface } from './gridsterItemComponent.interface';
 import { GridsterComponentInterface } from './gridster.interface';
 export declare class GridsterResizable {
-    private zone;
     gridsterItem: GridsterItemComponentInterface;
     gridster: GridsterComponentInterface;
     lastMouse: {
@@ -12,6 +11,7 @@ export declare class GridsterResizable {
         clientY: number;
     };
     itemBackup: Array<number>;
+    resizeEventScrollType: GridsterResizeEventType;
     directionFunction: Function;
     dragFunction: (event: any) => void;
     dragStopFunction: (event: any) => void;
@@ -41,7 +41,7 @@ export declare class GridsterResizable {
     width: number;
     height: number;
     newPosition: number;
-    constructor(gridsterItem: GridsterItemComponentInterface, gridster: GridsterComponentInterface, zone: NgZone);
+    constructor(gridsterItem: GridsterItemComponentInterface, gridster: GridsterComponentInterface);
     destroy(): void;
     dragStart(e: any): void;
     dragMove(e: any): void;

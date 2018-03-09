@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = require("@angular/core");
 var gridsterSwap_service_1 = require("./gridsterSwap.service");
+var gridsterScroll_service_1 = require("./gridsterScroll.service");
 var gridsterPush_service_1 = require("./gridsterPush.service");
 var gridsterUtils_service_1 = require("./gridsterUtils.service");
 var gridsterItemComponent_interface_1 = require("./gridsterItemComponent.interface");
 var gridster_interface_1 = require("./gridster.interface");
 var GridsterDraggable = /** @class */ (function () {
-    function GridsterDraggable(gridsterItem, gridster, zone) {
-        this.zone = zone;
+    function GridsterDraggable(gridsterItem, gridster) {
         this.gridsterItem = gridsterItem;
         this.gridster = gridster;
         this.lastMouse = {
@@ -30,7 +30,6 @@ var GridsterDraggable = /** @class */ (function () {
         }
     };
     GridsterDraggable.prototype.dragStart = function (e) {
-        var _this = this;
         switch (e.which) {
             case 1:
                 // left mouse button
@@ -47,14 +46,12 @@ var GridsterDraggable = /** @class */ (function () {
         e.preventDefault();
         this.dragFunction = this.dragMove.bind(this);
         this.dragStopFunction = this.dragStop.bind(this);
-        this.zone.runOutsideAngular(function () {
-            _this.mousemove = _this.gridsterItem.renderer.listen('document', 'mousemove', _this.dragFunction);
-            _this.mouseup = _this.gridsterItem.renderer.listen('document', 'mouseup', _this.dragStopFunction);
-            _this.cancelOnBlur = _this.gridsterItem.renderer.listen('window', 'blur', _this.dragStopFunction);
-            _this.touchmove = _this.gridster.renderer.listen(_this.gridster.el, 'touchmove', _this.dragFunction);
-            _this.touchend = _this.gridsterItem.renderer.listen('document', 'touchend', _this.dragStopFunction);
-            _this.touchcancel = _this.gridsterItem.renderer.listen('document', 'touchcancel', _this.dragStopFunction);
-        });
+        this.mousemove = this.gridsterItem.renderer.listen('document', 'mousemove', this.dragFunction);
+        this.mouseup = this.gridsterItem.renderer.listen('document', 'mouseup', this.dragStopFunction);
+        this.cancelOnBlur = this.gridsterItem.renderer.listen('window', 'blur', this.dragStopFunction);
+        this.touchmove = this.gridster.renderer.listen(this.gridster.el, 'touchmove', this.dragFunction);
+        this.touchend = this.gridsterItem.renderer.listen('document', 'touchend', this.dragStopFunction);
+        this.touchcancel = this.gridsterItem.renderer.listen('document', 'touchcancel', this.dragStopFunction);
         this.gridsterItem.renderer.addClass(this.gridsterItem.el, 'gridster-item-moving');
         this.margin = this.gridster.$options.margin;
         this.offsetLeft = this.gridster.el.scrollLeft - this.gridster.el.offsetLeft;
@@ -70,22 +67,20 @@ var GridsterDraggable = /** @class */ (function () {
         this.push = new gridsterPush_service_1.GridsterPush(this.gridsterItem);
         this.swap = new gridsterSwap_service_1.GridsterSwap(this.gridsterItem);
         this.gridster.dragInProgress = true;
-        this.gridster.updateGrid();
+        this.gridster.gridLines.updateGrid();
         this.path.push({ x: this.gridsterItem.item.x || 0, y: this.gridsterItem.item.y || 0 });
     };
     GridsterDraggable.prototype.dragMove = function (e) {
-        var _this = this;
         e.stopPropagation();
         e.preventDefault();
         gridsterUtils_service_1.GridsterUtils.checkTouchEvent(e);
         this.offsetLeft = this.gridster.el.scrollLeft - this.gridster.el.offsetLeft;
         this.offsetTop = this.gridster.el.scrollTop - this.gridster.el.offsetTop;
+        gridsterScroll_service_1.scroll(this.gridsterItem, e, this.lastMouse, this.calculateItemPositionFromMousePosition.bind(this));
         this.calculateItemPositionFromMousePosition(e);
         this.lastMouse.clientX = e.clientX;
         this.lastMouse.clientY = e.clientY;
-        this.zone.run(function () {
-            _this.gridster.updateGrid();
-        });
+        this.gridster.gridLines.updateGrid();
     };
     GridsterDraggable.prototype.calculateItemPositionFromMousePosition = function (e) {
         this.left = e.clientX + this.offsetLeft - this.margin - this.diffLeft;
@@ -96,6 +91,7 @@ var GridsterDraggable = /** @class */ (function () {
         var _this = this;
         e.stopPropagation();
         e.preventDefault();
+        gridsterScroll_service_1.cancelScroll();
         this.cancelOnBlur();
         this.mousemove();
         this.mouseup();
@@ -103,10 +99,8 @@ var GridsterDraggable = /** @class */ (function () {
         this.touchend();
         this.touchcancel();
         this.gridsterItem.renderer.removeClass(this.gridsterItem.el, 'gridster-item-moving');
-        this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'top', null);
-        this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'left', null);
         this.gridster.dragInProgress = false;
-        this.gridster.updateGrid();
+        this.gridster.gridLines.updateGrid();
         this.path = [];
         if (this.gridster.options.draggable && this.gridster.options.draggable.stop) {
             Promise.resolve(this.gridster.options.draggable.stop(this.gridsterItem.item, this.gridsterItem, e))
@@ -125,7 +119,7 @@ var GridsterDraggable = /** @class */ (function () {
     GridsterDraggable.prototype.cancelDrag = function () {
         this.gridsterItem.$item.x = this.gridsterItem.item.x || 0;
         this.gridsterItem.$item.y = this.gridsterItem.item.y || 0;
-        this.gridsterItem.setSize();
+        this.gridsterItem.setSize(true);
         this.push.restoreItems();
         this.swap.restoreSwapItem();
         this.push.destroy();
@@ -135,7 +129,7 @@ var GridsterDraggable = /** @class */ (function () {
     };
     GridsterDraggable.prototype.makeDrag = function () {
         this.gridsterItem.checkItemChanges(this.gridsterItem.$item, this.gridsterItem.item);
-        this.gridsterItem.setSize();
+        this.gridsterItem.setSize(true);
         this.push.setPushedItems();
         this.swap.setSwapItem();
         this.push.destroy();
@@ -153,14 +147,14 @@ var GridsterDraggable = /** @class */ (function () {
             this.gridsterItem.$item.x = this.positionXBackup;
         }
         else {
-            this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'left', (this.left - this.gridsterItem.left) + 'px');
+            this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'left', this.left + 'px');
         }
         this.gridsterItem.$item.y = this.positionY;
         if (this.gridster.checkGridCollision(this.gridsterItem.$item)) {
             this.gridsterItem.$item.y = this.positionYBackup;
         }
         else {
-            this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'top', (this.top - this.gridsterItem.top) + 'px');
+            this.gridsterItem.renderer.setStyle(this.gridsterItem.el, 'top', this.top + 'px');
         }
         if (this.positionXBackup !== this.gridsterItem.$item.x || this.positionYBackup !== this.gridsterItem.$item.y) {
             var lastPosition = this.path[this.path.length - 1];
@@ -248,7 +242,6 @@ var GridsterDraggable = /** @class */ (function () {
     GridsterDraggable.ctorParameters = function () { return [
         { type: gridsterItemComponent_interface_1.GridsterItemComponentInterface, },
         { type: gridster_interface_1.GridsterComponentInterface, },
-        { type: core_1.NgZone, },
     ]; };
     return GridsterDraggable;
 }());

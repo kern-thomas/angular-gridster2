@@ -1,10 +1,8 @@
-import { NgZone } from '@angular/core';
 import { GridsterSwap } from './gridsterSwap.service';
 import { GridsterPush } from './gridsterPush.service';
 import { GridsterItemComponentInterface } from './gridsterItemComponent.interface';
 import { GridsterComponentInterface } from './gridster.interface';
 export declare class GridsterDraggable {
-    private zone;
     gridsterItem: GridsterItemComponentInterface;
     gridster: GridsterComponentInterface;
     lastMouse: {
@@ -42,7 +40,7 @@ export declare class GridsterDraggable {
         x: number;
         y: number;
     }>;
-    constructor(gridsterItem: GridsterItemComponentInterface, gridster: GridsterComponentInterface, zone: NgZone);
+    constructor(gridsterItem: GridsterItemComponentInterface, gridster: GridsterComponentInterface);
     destroy(): void;
     dragStart(e: any): void;
     dragMove(e: any): void;

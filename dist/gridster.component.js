@@ -6,15 +6,12 @@ var gridsterUtils_service_1 = require("./gridsterUtils.service");
 var gridsterEmptyCell_service_1 = require("./gridsterEmptyCell.service");
 var gridsterCompact_service_1 = require("./gridsterCompact.service");
 var GridsterComponent = /** @class */ (function () {
-    function GridsterComponent(el, renderer, cdRef, zone) {
+    function GridsterComponent(el, renderer, cdRef) {
         this.renderer = renderer;
         this.cdRef = cdRef;
-        this.zone = zone;
-        this.gridColumns = [];
-        this.gridRows = [];
         this.el = el.nativeElement;
         this.$options = JSON.parse(JSON.stringify(gridsterConfig_constant_1.GridsterConfigService));
-        this.calculateLayoutDebounce = gridsterUtils_service_1.GridsterUtils.debounce(this.calculateLayout.bind(this), 0);
+        this.calculateLayoutDebounce = gridsterUtils_service_1.GridsterUtils.debounce(this.calculateLayout.bind(this), 5);
         this.mobile = false;
         this.curWidth = 0;
         this.curHeight = 0;
@@ -49,7 +46,7 @@ var GridsterComponent = /** @class */ (function () {
             this.columns = this.$options.minCols;
             this.rows = this.$options.minRows;
             this.setGridSize();
-            this.calculateLayout();
+            this.calculateLayoutDebounce();
         }
     };
     GridsterComponent.prototype.resize = function () {
@@ -107,7 +104,7 @@ var GridsterComponent = /** @class */ (function () {
     };
     GridsterComponent.prototype.onResize = function () {
         this.setGridSize();
-        this.calculateLayout();
+        this.calculateLayoutDebounce();
     };
     GridsterComponent.prototype.checkIfToResize = function () {
         var clientWidth = this.el.clientWidth;
@@ -159,6 +156,7 @@ var GridsterComponent = /** @class */ (function () {
         this.rows = rows;
     };
     GridsterComponent.prototype.calculateLayout = function () {
+        // check to compact
         if (this.compact) {
             this.compact.checkCompact();
         }
@@ -167,56 +165,41 @@ var GridsterComponent = /** @class */ (function () {
             var marginWidth = -this.$options.margin;
             if (this.$options.outerMarginLeft !== null) {
                 marginWidth += this.$options.outerMarginLeft;
-                this.renderer.setStyle(this.el, 'padding-left', this.$options.outerMarginLeft + 'px');
             }
             else {
                 marginWidth += this.$options.margin;
-                this.renderer.setStyle(this.el, 'padding-left', this.$options.margin + 'px');
             }
             if (this.$options.outerMarginRight !== null) {
                 marginWidth += this.$options.outerMarginRight;
-                this.renderer.setStyle(this.el, 'padding-right', this.$options.outerMarginRight + 'px');
             }
             else {
                 marginWidth += this.$options.margin;
-                this.renderer.setStyle(this.el, 'padding-right', this.$options.margin + 'px');
             }
             this.curColWidth = (this.curWidth - marginWidth) / this.columns;
             var marginHeight = -this.$options.margin;
             if (this.$options.outerMarginTop !== null) {
                 marginHeight += this.$options.outerMarginTop;
-                this.renderer.setStyle(this.el, 'padding-top', this.$options.outerMarginTop + 'px');
             }
             else {
                 marginHeight += this.$options.margin;
-                this.renderer.setStyle(this.el, 'padding-top', this.$options.margin + 'px');
             }
             if (this.$options.outerMarginBottom !== null) {
                 marginHeight += this.$options.outerMarginBottom;
-                this.renderer.setStyle(this.el, 'padding-bottom', this.$options.outerMarginBottom + 'px');
             }
             else {
                 marginHeight += this.$options.margin;
-                this.renderer.setStyle(this.el, 'padding-bottom', this.$options.margin + 'px');
             }
             this.curRowHeight = (this.curHeight - marginHeight) / this.rows;
         }
         else {
             this.curColWidth = (this.curWidth + this.$options.margin) / this.columns;
             this.curRowHeight = (this.curHeight + this.$options.margin) / this.rows;
-            this.renderer.setStyle(this.el, 'padding-left', 0 + 'px');
-            this.renderer.setStyle(this.el, 'padding-right', 0 + 'px');
-            this.renderer.setStyle(this.el, 'padding-top', 0 + 'px');
-            this.renderer.setStyle(this.el, 'padding-bottom', 0 + 'px');
         }
-        this.renderer.setStyle(this.el, 'grid-gap', this.$options.margin + 'px');
         var addClass = '';
         var removeClass1 = '';
         var removeClass2 = '';
         var removeClass3 = '';
         if (this.$options.gridType === 'fit') {
-            this.renderer.setStyle(this.el, 'grid-auto-rows', '1fr');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', '1fr');
             addClass = 'fit';
             removeClass1 = 'scrollVertical';
             removeClass2 = 'scrollHorizontal';
@@ -224,8 +207,6 @@ var GridsterComponent = /** @class */ (function () {
         }
         else if (this.$options.gridType === 'scrollVertical') {
             this.curRowHeight = this.curColWidth;
-            this.renderer.setStyle(this.el, 'grid-auto-rows', (this.curRowHeight - this.$options.margin) + 'px');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', '1fr');
             addClass = 'scrollVertical';
             removeClass1 = 'fit';
             removeClass2 = 'scrollHorizontal';
@@ -233,76 +214,48 @@ var GridsterComponent = /** @class */ (function () {
         }
         else if (this.$options.gridType === 'scrollHorizontal') {
             this.curColWidth = this.curRowHeight;
-            this.renderer.setStyle(this.el, 'grid-auto-rows', '1fr');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', (this.curColWidth - this.$options.margin) + 'px');
             addClass = 'scrollHorizontal';
             removeClass1 = 'fit';
             removeClass2 = 'scrollVertical';
             removeClass3 = 'fixed';
         }
         else if (this.$options.gridType === 'fixed') {
-            this.curColWidth = this.$options.fixedColWidth;
-            this.curRowHeight = this.$options.fixedRowHeight;
-            this.renderer.setStyle(this.el, 'grid-auto-rows', this.curRowHeight + 'px');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', this.curColWidth + 'px');
+            this.curColWidth = this.$options.fixedColWidth + (this.$options.ignoreMarginInRow ? 0 : this.$options.margin);
+            this.curRowHeight = this.$options.fixedRowHeight + (this.$options.ignoreMarginInRow ? 0 : this.$options.margin);
             addClass = 'fixed';
             removeClass1 = 'fit';
             removeClass2 = 'scrollVertical';
             removeClass3 = 'scrollHorizontal';
         }
         else if (this.$options.gridType === 'verticalFixed') {
-            this.curRowHeight = this.$options.fixedRowHeight;
-            this.renderer.setStyle(this.el, 'grid-auto-rows', this.curRowHeight + 'px');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', '1fr');
+            this.curRowHeight = this.$options.fixedRowHeight + (this.$options.ignoreMarginInRow ? 0 : this.$options.margin);
             addClass = 'scrollVertical';
             removeClass1 = 'fit';
             removeClass2 = 'scrollHorizontal';
             removeClass3 = 'fixed';
         }
         else if (this.$options.gridType === 'horizontalFixed') {
-            this.curColWidth = this.$options.fixedColWidth;
-            this.renderer.setStyle(this.el, 'grid-auto-rows', '1fr');
-            this.renderer.setStyle(this.el, 'grid-auto-columns', this.curColWidth + 'px');
+            this.curColWidth = this.$options.fixedColWidth + (this.$options.ignoreMarginInRow ? 0 : this.$options.margin);
             addClass = 'scrollHorizontal';
             removeClass1 = 'fit';
             removeClass2 = 'scrollVertical';
             removeClass3 = 'fixed';
         }
-        if (this.mobile) {
-            this.renderer.setStyle(this.el, 'grid-auto-rows', null);
-            this.renderer.setStyle(this.el, 'grid-auto-columns', null);
-            this.renderer.removeClass(this.el, addClass);
-        }
-        else {
-            this.renderer.addClass(this.el, addClass);
-        }
+        this.renderer.addClass(this.el, addClass);
         this.renderer.removeClass(this.el, removeClass1);
         this.renderer.removeClass(this.el, removeClass2);
         this.renderer.removeClass(this.el, removeClass3);
-        this.updateGrid();
+        if (this.gridLines) {
+            this.gridLines.updateGrid();
+        }
         var widgetsIndex = this.grid.length - 1, widget;
         for (; widgetsIndex >= 0; widgetsIndex--) {
             widget = this.grid[widgetsIndex];
-            widget.setSize();
+            widget.setSize(false);
             widget.drag.toggle();
             widget.resize.toggle();
         }
         setTimeout(this.resize.bind(this), 100);
-    };
-    GridsterComponent.prototype.updateGrid = function () {
-        if (this.$options.displayGrid === 'always' && !this.mobile) {
-            this.renderer.addClass(this.el, 'display-grid');
-        }
-        else if (this.$options.displayGrid === 'onDrag&Resize' && this.dragInProgress) {
-            this.renderer.addClass(this.el, 'display-grid');
-        }
-        else if (this.$options.displayGrid === 'none' || !this.dragInProgress || this.mobile) {
-            this.renderer.removeClass(this.el, 'display-grid');
-        }
-        this.setGridDimensions();
-        this.gridColumns.length = Math.max(this.columns, Math.floor(this.curWidth / this.curColWidth)) || 0;
-        this.gridRows.length = Math.max(this.rows, Math.floor(this.curHeight / this.curRowHeight)) || 0;
-        this.cdRef.markForCheck();
     };
     GridsterComponent.prototype.addItem = function (itemComponent) {
         if (itemComponent.$item.cols === undefined) {
@@ -399,10 +352,10 @@ var GridsterComponent = /** @class */ (function () {
             newItem.rows = this.$options.defaultItemRows;
         }
         this.setGridDimensions();
-        var rowsIndex = startingFrom.y || 0, colsIndex;
+        var rowsIndex = startingFrom.rows || 0, colsIndex;
         for (; rowsIndex < this.rows; rowsIndex++) {
             newItem.y = rowsIndex;
-            colsIndex = startingFrom.x || 0;
+            colsIndex = startingFrom.cols || 0;
             for (; colsIndex < this.columns; colsIndex++) {
                 newItem.x = colsIndex;
                 if (!this.checkCollision(newItem)) {
@@ -431,18 +384,17 @@ var GridsterComponent = /** @class */ (function () {
         return tmpItem;
     };
     GridsterComponent.prototype.getLastPossiblePosition = function (item) {
-        var farthestItem = { y: 0, x: 0 };
+        var farthestItem;
         farthestItem = this.grid.reduce(function (prev, curr) {
             var currCoords = { y: curr.$item.y + curr.$item.rows - 1, x: curr.$item.x + curr.$item.cols - 1 };
-            if (gridsterUtils_service_1.GridsterUtils.compareItems(prev, currCoords) === 1) {
-                return currCoords;
-            }
-            else {
-                return prev;
-            }
-        }, farthestItem);
+            var cmpResult = gridsterUtils_service_1.GridsterUtils.compareItems({ y: prev.rows, x: prev.cols }, { y: currCoords.y, x: currCoords.x });
+            return cmpResult === 1 ? { rows: currCoords.y, cols: currCoords.x, item: curr } : prev;
+        }, { rows: 0, cols: 0, item: null });
         var tmpItem = Object.assign({}, item);
-        this.getNextPossiblePosition(tmpItem, farthestItem);
+        this.getNextPossiblePosition(tmpItem, {
+            rows: farthestItem.rows - farthestItem.item.$item.rows + 1,
+            cols: farthestItem.cols
+        });
         return tmpItem;
     };
     GridsterComponent.prototype.pixelsToPositionX = function (x, roundingMethod) {
@@ -460,8 +412,8 @@ var GridsterComponent = /** @class */ (function () {
     GridsterComponent.decorators = [
         { type: core_1.Component, args: [{
                     selector: 'gridster',
-                    template: "<div class=\"gridster-column\" *ngFor=\"let column of gridColumns; let i = index;\" [style.gridColumn]=\"(i + 1)\"      [style.gridRowStart]=\"1\" [style.gridRowEnd]=\"(gridRows.length + 1)\"></div> <div class=\"gridster-row\" *ngFor=\"let row of gridRows; let i = index;\" [style.gridRow]=\"(i + 1)\"      [style.gridColumnStart]=\"1\" [style.gridColumnEnd]=\"(gridColumns.length + 1)\"></div> <ng-content></ng-content> <gridster-preview class=\"gridster-preview\"></gridster-preview>",
-                    styles: ["gridster {   position: relative;   display: grid;   box-sizing: border-box;   background: grey;   width: 100%;   height: 100%;   user-select: none; }  gridster.fit {   overflow-x: hidden;   overflow-y: hidden; }  gridster.scrollVertical {   overflow-x: hidden;   overflow-y: auto; }  gridster.scrollHorizontal {   overflow-x: auto;   overflow-y: hidden; }  gridster.fixed {   overflow: auto; }  gridster.mobile {   grid-auto-rows: 25%;   overflow-x: hidden;   overflow-y: auto; }  gridster.mobile gridster-item {   position: relative; }  gridster .gridster-column, gridster .gridster-row {   display: none;   transition: .3s;   box-sizing: border-box; }  gridster.display-grid .gridster-column, gridster.display-grid .gridster-row {   display: block; }  gridster .gridster-column {   border-left: 1px solid white;   border-right: 1px solid white; }  gridster .gridster-row {   border-top: 1px solid white;   border-bottom: 1px solid white; }"],
+                    template: "<gridster-grid class=\"gridster-grid\"></gridster-grid> <ng-content></ng-content> <gridster-preview class=\"gridster-preview\"></gridster-preview>",
+                    styles: ["gridster {   position: relative;   display: flex;   overflow: auto;   flex: 1 auto;   background: grey;   width: 100%;   height: 100%;   user-select: none; }  gridster.fit {   overflow-x: hidden;   overflow-y: hidden; }  gridster.scrollVertical {   overflow-x: hidden;   overflow-y: auto; }  gridster.scrollHorizontal {   overflow-x: auto;   overflow-y: hidden; }  gridster.fixed {   overflow: auto; }  gridster.mobile {   overflow-x: hidden;   overflow-y: auto;   display: block; }  gridster.mobile gridster-item {   position: relative; }"],
                     encapsulation: core_1.ViewEncapsulation.None
                 },] },
     ];
@@ -470,7 +422,6 @@ var GridsterComponent = /** @class */ (function () {
         { type: core_1.ElementRef, },
         { type: core_1.Renderer2, },
         { type: core_1.ChangeDetectorRef, },
-        { type: core_1.NgZone, },
     ]; };
     GridsterComponent.propDecorators = {
         "options": [{ type: core_1.Input },],
